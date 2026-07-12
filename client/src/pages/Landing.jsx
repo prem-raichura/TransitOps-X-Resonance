@@ -157,38 +157,27 @@ export default function Landing() {
       </section>
 
       {/* Mobile app showcase */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 md:grid-cols-2">
-        <div className="flex justify-center">
-          <div className="rounded-[2.5rem] border-[6px] border-slate-800 bg-slate-800 shadow-2xl shadow-ocean-deep/20 dark:border-slate-700">
-            <img
-              src="/team/demo.jpeg"
-              alt="TransitOps driver mobile app"
-              className="h-[520px] w-auto rounded-[2rem] object-cover"
-            />
-          </div>
-        </div>
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-sunset/15 px-3 py-1 text-xs font-semibold text-sunset">
-            📱 On the road
-          </span>
-          <h2 className="mt-5 text-3xl font-bold text-ocean-deep dark:text-white">
-            The driver app, in every pocket
-          </h2>
-          <p className="mt-4 max-w-md text-slate-600 dark:text-slate-300">
-            Drivers see only their own trips, log geotagged fuel, toggle live location and complete
-            runs with a GPS-verified swipe — dispatch approves from the back-office.
-          </p>
-          <ul className="mt-6 space-y-3">
-            {['My trips & live status', 'Geotagged fuel logging', 'GPS-verified completion'].map((t) => (
-              <li key={t} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ocean-light/40 text-xs text-ocean-deep dark:bg-slate-700 dark:text-ocean-light">
-                  ✓
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <section className="mx-auto max-w-3xl px-5 py-20 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full bg-sunset/15 px-3 py-1 text-xs font-semibold text-sunset">
+          📱 On the road
+        </span>
+        <h2 className="mt-5 text-3xl font-bold text-ocean-deep dark:text-white">
+          The driver app, in every pocket
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300">
+          Drivers see only their own trips, log geotagged fuel, toggle live location and complete
+          runs with a GPS-verified swipe — dispatch approves from the back-office.
+        </p>
+        <ul className="mx-auto mt-6 flex max-w-xl flex-wrap justify-center gap-x-6 gap-y-3">
+          {['My trips & live status', 'Geotagged fuel logging', 'GPS-verified completion'].map((t) => (
+            <li key={t} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ocean-light/40 text-xs text-ocean-deep dark:bg-slate-700 dark:text-ocean-light">
+                ✓
+              </span>
+              {t}
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Features */}
