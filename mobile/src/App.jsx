@@ -1,23 +1,47 @@
-import { Routes, Route } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { DriverAuthProvider, useDriverAuth } from './context/DriverAuthContext'
+import Login from './screens/Login'
+import MyTrips from './screens/MyTrips'
+import TripDetail from './screens/TripDetail'
+import Profile from './screens/Profile'
 
-// Screens land here per PLANS/11: Login, MyTrips, TripDetail, Profile
+function Protected({ children }) {
+  const { token } = useDriverAuth()
+  return token ? children : <Navigate to="/login" replace />
+}
 
 function App() {
   return (
-    <Routes>
-      <Route
-        path="*"
-        element={
-          <div className="flex min-h-screen items-center justify-center bg-brand-dark px-6">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-brand">TransitOps Driver</h1>
-              <p className="mt-2 text-gray-300">Trips · GPS · Fuel proof</p>
-              <p className="mt-4 text-sm text-gray-400">Scaffold ready — build screens per PLANS/11</p>
-            </div>
-          </div>
-        }
-      />
-    </Routes>
+    <DriverAuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <Protected>
+              <MyTrips />
+            </Protected>
+          }
+        />
+        <Route
+          path="/trips/:slug"
+          element={
+            <Protected>
+              <TripDetail />
+            </Protected>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Protected>
+              <Profile />
+            </Protected>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </DriverAuthProvider>
   )
 }
 

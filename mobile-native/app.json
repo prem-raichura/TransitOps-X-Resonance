@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "TransitOps Driver",
+    "slug": "transitops-driver",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#21313f",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.transitops.driver",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "TransitOps uses your location to track trips and prove delivery at completion.",
+        "NSCameraUsageDescription": "TransitOps uses the camera to capture fuel-meter proof photos."
+      }
+    },
+    "android": {
+      "package": "com.transitops.driver",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "TransitOps uses your location to track trips and prove delivery." }
+      ],
+      [
+        "expo-image-picker",
+        { "cameraPermission": "TransitOps uses the camera to capture fuel-meter proof photos." }
+      ]
+    ]
+  }
+}
