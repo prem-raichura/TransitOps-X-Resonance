@@ -89,6 +89,8 @@ model Driver {
   status          DriverStatus   @default(AVAILABLE) // Rules 3,4,6-8
   // driver mobile app
   passwordHash    String? // null until dispatcher sets app password
+  failedLogins    Int            @default(0) // app login lockout counter
+  lockedUntil     DateTime? // app login lock expiry (5 fails -> 15 min)
   locationEnabled Boolean        @default(false) // driver-controlled GPS sharing toggle
   lastLat         Float?
   lastLng         Float?
@@ -123,6 +125,7 @@ model Trip {
   completedBy           String? // "DRIVER" | "DISPATCHER"
   completionSubmittedAt DateTime? // when driver swiped (PENDING_COMPLETION)
   verifiedAt            DateTime? // when dispatcher approved -> COMPLETED
+  rejectionReason       String? // dispatcher's reason when completion rejected (shown in driver app)
   pings                 LocationPing[]
   createdAt             DateTime       @default(now())
 }
