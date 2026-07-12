@@ -38,7 +38,7 @@ export default function CompletionSlider({ disabled, onComplete, label = 'slide 
         overflow: 'hidden',
       }}
     >
-      <Text style={{ textAlign: 'center', color: disabled ? colors.gray : '#fff', fontSize: 14, fontWeight: '500' }}>
+      <Text style={{ textAlign: 'center', color: disabled ? colors.faint : '#fff', fontSize: 14, fontWeight: '500' }}>
         {disabled ? 'unavailable' : label}
       </Text>
       <Animated.View

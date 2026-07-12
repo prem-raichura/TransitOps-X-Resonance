@@ -32,7 +32,7 @@ export default function LocationToggle({ enabled, onChange }) {
         paddingVertical: 6,
       }}
     >
-      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: enabled ? '#4ade80' : colors.gray }} />
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: enabled ? colors.greenDot : colors.faint }} />
       <Text style={{ color: '#fff', fontSize: 12, fontWeight: '500' }}>{enabled ? 'Location ON' : 'Location OFF'}</Text>
     </TouchableOpacity>
   )
