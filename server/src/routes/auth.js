@@ -69,6 +69,31 @@ router.get('/me', requireAuth, async (req, res, next) => {
   }
 })
 
+// PUT /api/auth/me { name, email } — self-service profile edit. Role is not editable here.
+router.put('/me', requireAuth, async (req, res, next) => {
+  try {
+    const { name, email } = req.body || {}
+    if (!name?.trim() || !email?.trim()) {
+      return res.status(400).json({ error: 'Name and email are required' })
+    }
+
+    const normalizedEmail = email.toLowerCase().trim()
+    const emailTaken = await prisma.user.findFirst({
+      where: { email: normalizedEmail, NOT: { id: req.user.id } },
+    })
+    if (emailTaken) return res.status(409).json({ error: 'Email already in use' })
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { name: name.trim(), email: normalizedEmail },
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
+    })
+    res.json({ user })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // PUT /api/auth/password — self-service change, requires current password
 router.put('/password', requireAuth, async (req, res, next) => {
   try {
