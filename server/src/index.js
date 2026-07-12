@@ -1,15 +1,17 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
-const path = require('path')
 
 const app = express()
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'] }))
+// local dev origins + any deployed client origins from env (comma-separated)
+const origins = ['http://localhost:5173', 'http://localhost:5174']
+if (process.env.CLIENT_ORIGINS) origins.push(...process.env.CLIENT_ORIGINS.split(','))
+app.use(cors({ origin: origins }))
 app.use(express.json())
 
-// fuel-meter proof photos (multer writes here, see PLANS/11)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
+// Fuel-meter proof photos live on Cloudinary (src/lib/cloudinary.js) — no local uploads dir.
+// Local disk is ephemeral/read-only on Vercel serverless.
 
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'transitops-api' }))
 
@@ -39,5 +41,11 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: message })
 })
 
-const PORT = process.env.PORT || 5050
-app.listen(PORT, () => console.log(`TransitOps API on :${PORT}`))
+// On Vercel the app runs as a serverless function — export it, never listen.
+// Locally (node/nodemon) we listen as usual.
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5050
+  app.listen(PORT, () => console.log(`TransitOps API on :${PORT}`))
+}
+
+module.exports = app
