@@ -1,6 +1,5 @@
 # TransitOps — Smart Transport Operations Platform
 
-Odoo Hackathon project. Full plans in [`../PLANS/`](../PLANS/).
 
 ## Structure
 
