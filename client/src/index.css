@@ -1,10 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-<<<<<<< HEAD
 
 body {
   @apply bg-slate-100 text-slate-900 antialiased;
 }
-=======
->>>>>>> 6db0e718af9c7de375e68fbaa07109db74c7cb65
