@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs')
 const prisma = require('../lib/prisma')
 const { requireAuth } = require('../middleware/auth')
 const { requireRole } = require('../middleware/rbac')
+const { sendWelcomeEmail } = require('../lib/mailer')
 
 // Roles that Fleet Manager is allowed to create / manage
 const MANAGEABLE_ROLES = ['DISPATCHER', 'SAFETY_OFFICER', 'FINANCIAL_ANALYST']
@@ -49,6 +50,12 @@ router.post('/', async (req, res, next) => {
       data: { name: name.trim(), email: email.toLowerCase().trim(), passwordHash, role },
       select: { id: true, name: true, email: true, role: true, createdAt: true },
     })
+
+    // Send welcome email with login credentials (fire-and-forget — don't fail request if email errors)
+    sendWelcomeEmail({ name: user.name, email: user.email, password, role: user.role }).catch((err) =>
+      console.error('[mailer] Failed to send welcome email to', user.email, err.message),
+    )
+
     res.status(201).json(user)
   } catch (err) {
     next(err)
