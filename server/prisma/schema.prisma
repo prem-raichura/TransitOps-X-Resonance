@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Neon pooled connection string
+}
+
+enum Role {
+  FLEET_MANAGER
+  DISPATCHER
+  SAFETY_OFFICER
+  FINANCIAL_ANALYST
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  RETIRED
+}
+
+enum VehicleType {
+  VAN
+  TRUCK
+  MINI
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  SUSPENDED
+}
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  PENDING_COMPLETION // driver swiped complete -> awaiting dispatcher verification
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintStatus {
+  IN_SHOP
+  COMPLETED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model Vehicle {
+  id              String           @id @default(cuid()) // internal PK — never exposed in URLs
+  slug            String           @unique // URL identifier, e.g. "van-05"
+  regNo           String           @unique // Rule 1: unique registration
+  name            String
+  type            VehicleType
+  capacityKg      Float // Rule 5: max load capacity
+  odometer        Float            @default(0)
+  acquisitionCost Float // ROI denominator
+  region          String?
+  status          VehicleStatus    @default(AVAILABLE) // Rules 2,4,6-10
+  trips           Trip[]
+  maintenance     MaintenanceLog[]
+  fuelLogs        FuelLog[]
+  createdAt       DateTime         @default(now())
+}
+
+model Driver {
+  id              String         @id @default(cuid()) // internal PK — never exposed in URLs
+  slug            String         @unique // e.g. "alex", "alex-2" on collision
+  name            String
+  licenseNo       String         @unique
+  licenseCategory String // LMV / HMV
+  licenseExpiry   DateTime // Rule 3
+  contact         String
+  safetyScore     Int            @default(100) // trip completion %
+  status          DriverStatus   @default(AVAILABLE) // Rules 3,4,6-8
+  // driver mobile app
+  phone           String?        @unique // app login id (dispatcher-provisioned)
+  passwordHash    String? // null until dispatcher sets app password
+  locationEnabled Boolean        @default(false) // driver-controlled GPS sharing toggle
+  lastLat         Float?
+  lastLng         Float?
+  lastPingAt      DateTime?
+  pings           LocationPing[]
+  trips           Trip[]
+  createdAt       DateTime       @default(now())
+}
+
+model Trip {
+  id                    String         @id @default(cuid()) // internal PK — never exposed in URLs
+  slug                  String         @unique // sequential trip code, e.g. "tr-001"
+  source                String
+  destination           String
+  vehicleId             String
+  vehicle               Vehicle        @relation(fields: [vehicleId], references: [id])
+  driverId              String
+  driver                Driver         @relation(fields: [driverId], references: [id])
+  cargoKg               Float // Rule 5
+  plannedKm             Float
+  status                TripStatus     @default(DRAFT)
+  startOdometer         Float?
+  endOdometer           Float?
+  revenue               Float          @default(0)
+  fuelLogs              FuelLog[]
+  expenses              Expense[]
+  dispatchedAt          DateTime?
+  completedAt           DateTime?
+  // driver app completion proof
+  completedLat          Float? // MANDATORY when driver submits via slider
+  completedLng          Float?
+  completedBy           String? // "DRIVER" | "DISPATCHER"
+  completionSubmittedAt DateTime? // when driver swiped (PENDING_COMPLETION)
+  verifiedAt            DateTime? // when dispatcher approved -> COMPLETED
+  pings                 LocationPing[]
+  createdAt             DateTime       @default(now())
+}
+
+model MaintenanceLog {
+  id          String      @id @default(cuid()) // internal PK — never exposed in URLs
+  slug        String      @unique // sequential, e.g. "mnt-001"
+  vehicleId   String
+  vehicle     Vehicle     @relation(fields: [vehicleId], references: [id])
+  serviceType String // Oil Change, Engine Repair, Tyre Replace
+  cost        Float
+  date        DateTime
+  status      MaintStatus @default(IN_SHOP) // Rules 9-10
+  createdAt   DateTime    @default(now())
+}
+
+model FuelLog {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id])
+  tripId        String?
+  trip          Trip?    @relation(fields: [tripId], references: [id])
+  liters        Float
+  cost          Float
+  date          DateTime
+  loggedBy      String   @default("ANALYST") // ANALYST | DRIVER | AUTO
+  // driver proof: MANDATORY when loggedBy = DRIVER
+  proofImageUrl String? // geotagged fuel-meter photo (/uploads/...)
+  lat           Float? // GPS at photo capture time
+  lng           Float?
+}
+
+model Expense {
+  id       String   @id @default(cuid())
+  tripId   String
+  trip     Trip     @relation(fields: [tripId], references: [id])
+  tollCost Float    @default(0)
+  miscCost Float    @default(0)
+  date     DateTime @default(now())
+}
+
+model LocationPing {
+  id       String   @id @default(cuid())
+  driverId String
+  driver   Driver   @relation(fields: [driverId], references: [id])
+  tripId   String?
+  trip     Trip?    @relation(fields: [tripId], references: [id])
+  lat      Float
+  lng      Float
+  at       DateTime @default(now())
+}
+
+model Settings {
+  id           Int    @id @default(1) // single-row depot config
+  depotName    String @default("Gandhinagar Depot, GJ")
+  currency     String @default("INR")
+  distanceUnit String @default("Kilometers")
+}

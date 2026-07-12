@@ -38,8 +38,3 @@ cd mobile && npm install && npm run dev    # :5174
 | Financial Analyst | finance@transitops.in | demo1234 |
 | Driver (mobile) | phone, set by Dispatcher | set by Dispatcher |
 
-## Docs
-
-- Module plans: `../PLANS/00-OVERVIEW.md` → `12-GPS-TRACKING.md`
-- DB schema: `../PLANS/PRISMA-SCHEMA.pdf` (source of truth: `server/prisma/schema.prisma`)
-- Git workflow: `../PLANS/10-GIT-WORKFLOW.md` — all commits made manually by team members
