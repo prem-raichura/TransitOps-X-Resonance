@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { HOME_ROUTE, MATRIX } from './lib/rbac'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Layout from './components/Layout'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Settings from './pages/Settings'
 import Dashboard from './pages/Dashboard'
@@ -24,6 +25,7 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route
           element={
