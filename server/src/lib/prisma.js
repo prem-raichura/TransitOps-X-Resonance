@@ -1,6 +1,3 @@
-const { PrismaClient } = require('@prisma/client')
-
-// single shared client — nodemon restarts get a fresh process, no pooling issues
-const prisma = new PrismaClient()
-
-module.exports = prisma
+// Alias — the canonical shared PrismaClient lives in src/prisma.js.
+// Both import paths (../lib/prisma and ../prisma) resolve to ONE instance.
+module.exports = require('../prisma')
