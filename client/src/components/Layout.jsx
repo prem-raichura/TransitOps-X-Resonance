@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { NAV_ITEMS, ROLE_CODE, can } from '../lib/rbac'
+import ThemeToggle from './ThemeToggle'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -49,6 +50,7 @@ export default function Layout() {
             />
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/profile" className="flex items-center gap-2 hover:opacity-80">
               <span className="hidden text-sm font-medium text-gray-700 sm:inline">{user.name}</span>
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
