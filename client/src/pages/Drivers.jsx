@@ -63,11 +63,14 @@ const STAFF_ROLE_BADGE = {
 }
 const emptyStaffForm = { name: '', email: '', role: 'DISPATCHER' }
 
-const validateStaffForm = (form) => {
+const validateStaffForm = (form, existingStaff = []) => {
   const errors = {}
   if (!form.name.trim()) errors.name = 'Name is required'
   if (!form.email.trim()) errors.email = 'Email is required'
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = 'Enter a valid email'
+  else if (existingStaff.some(s => s.email.toLowerCase() === form.email.trim().toLowerCase())) {
+    errors.email = 'Email is already registered'
+  }
   return errors
 }
 
@@ -178,7 +181,7 @@ export default function Drivers() {
   /* ── Add Staff / Dispatcher (Fleet Manager) ───────────────────── */
   const addStaff = async () => {
     setStaffFormError('')
-    const errors = validateStaffForm(staffForm)
+    const errors = validateStaffForm(staffForm, staff)
     setStaffFieldErrors(errors)
     if (Object.keys(errors).length > 0) return
     const autoPassword = generatePassword()
@@ -196,7 +199,11 @@ export default function Drivers() {
       setPasswordCopied(false)
       loadStaff()
     } catch (err) {
-      setStaffFormError(err.response?.data?.error || 'Could not add staff member')
+      if (err.response?.status === 409) {
+        setStaffFieldErrors({ email: err.response.data.error || 'Email already registered' })
+      } else {
+        setStaffFormError(err.response?.data?.error || 'Could not add staff member')
+      }
     }
   }
 
