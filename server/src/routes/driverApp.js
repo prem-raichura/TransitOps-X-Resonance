@@ -13,7 +13,8 @@ const upload = multer({
 // Every route below is scoped to the authenticated driver (req.driver.id).
 router.use(requireDriver)
 
-const TRIP_SELECT = {
+// list view — lightweight (no logs)
+const TRIP_LIST_SELECT = {
   slug: true,
   source: true,
   destination: true,
@@ -26,6 +27,23 @@ const TRIP_SELECT = {
   completionSubmittedAt: true,
   rejectionReason: true,
   vehicle: { select: { slug: true, name: true, regNo: true, type: true, odometer: true } },
+}
+
+// detail view — full history: fuel logs (with proof photo + GPS), expenses, completion GPS
+const TRIP_DETAIL_SELECT = {
+  ...TRIP_LIST_SELECT,
+  completedLat: true,
+  completedLng: true,
+  completedBy: true,
+  verifiedAt: true,
+  fuelLogs: {
+    select: { id: true, liters: true, cost: true, date: true, loggedBy: true, proofImageUrl: true, lat: true, lng: true },
+    orderBy: { date: 'desc' },
+  },
+  expenses: {
+    select: { id: true, tollCost: true, miscCost: true, date: true },
+    orderBy: { date: 'desc' },
+  },
 }
 
 // fetch a trip the driver actually owns, else 404 (never leak other drivers' trips)
@@ -67,7 +85,7 @@ router.get('/trips', async (req, res, next) => {
   try {
     const trips = await prisma.trip.findMany({
       where: { driverId: req.driver.id },
-      select: TRIP_SELECT,
+      select: TRIP_LIST_SELECT,
       orderBy: { createdAt: 'desc' },
     })
     const rank = (s) => (s === 'DISPATCHED' || s === 'PENDING_COMPLETION' ? 0 : 1)
@@ -81,7 +99,7 @@ router.get('/trips', async (req, res, next) => {
 // GET /api/driver/trips/:slug — detail (must be his trip)
 router.get('/trips/:slug', async (req, res, next) => {
   try {
-    const trip = await ownTrip(req.driver.id, req.params.slug, { select: TRIP_SELECT })
+    const trip = await ownTrip(req.driver.id, req.params.slug, { select: TRIP_DETAIL_SELECT })
     res.json(trip)
   } catch (err) {
     next(err)
