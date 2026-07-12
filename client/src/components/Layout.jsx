@@ -25,8 +25,7 @@ export default function Layout() {
               to={item.path}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `block rounded px-3 py-2 text-sm ${
-                  isActive ? 'bg-brand/20 font-semibold text-brand-dark' : 'text-gray-600 hover:bg-gray-100'
+                `block rounded px-3 py-2 text-sm ${isActive ? 'bg-brand/20 font-semibold text-brand-dark' : 'text-gray-600 hover:bg-gray-100'
                 }`
               }
             >
