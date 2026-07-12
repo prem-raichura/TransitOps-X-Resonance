@@ -5,6 +5,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Settings from './pages/Settings'
+import Dashboard from './pages/Dashboard'
 import Vehicles from './pages/Vehicles'
 import Drivers from './pages/Drivers'
 import Trips from './pages/Trips'
@@ -30,7 +31,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<Placeholder title="Dashboard" plan="PLANS/08" />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route
             path="/fleet"
             element={
