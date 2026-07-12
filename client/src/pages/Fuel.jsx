@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import { TableSkeleton } from '../components/Skeleton'
 
 const LOGGED_BY_STYLE = {
@@ -11,6 +12,8 @@ const LOGGED_BY_STYLE = {
 const mapUrl = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
 
 export default function Fuel() {
+  const { user } = useAuth()
+  const isAnalyst = user?.role === 'FINANCIAL_ANALYST'
   const [fuel, setFuel] = useState([])
   const [expenses, setExpenses] = useState([])
   const [summary, setSummary] = useState(null)
@@ -18,15 +21,24 @@ export default function Fuel() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([api.get('/fuel'), api.get('/expenses'), api.get('/expenses/summary')])
-      .then(([f, e, s]) => {
-        setFuel(f.data)
-        setExpenses(e.data)
-        setSummary(s.data)
+    // Resilient loads: one failing call must not blank the whole page.
+    // The operational-cost summary is Financial-Analyst-only, so Safety Officer skips it.
+    const jobs = [
+      api.get('/fuel').then((r) => setFuel(r.data)),
+      api.get('/expenses').then((r) => setExpenses(r.data)),
+    ]
+    if (isAnalyst) {
+      jobs.push(api.get('/expenses/summary').then((r) => setSummary(r.data)).catch(() => {}))
+    }
+    Promise.allSettled(jobs)
+      .then((results) => {
+        // only error if BOTH core tables failed to load
+        if (results[0].status === 'rejected' && results[1].status === 'rejected') {
+          setError('Could not load fuel & expenses')
+        }
       })
-      .catch(() => setError('Could not load fuel & expenses'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [isAnalyst])
 
   return (
     <div className="space-y-6">
