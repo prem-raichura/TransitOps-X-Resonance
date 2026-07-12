@@ -5,6 +5,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Settings from './pages/Settings'
+import Trips from './pages/Trips'
 import Placeholder from './pages/Placeholder'
 
 const rolesFor = (module_) => Object.keys(MATRIX[module_]).filter((role) => MATRIX[module_][role])
@@ -47,7 +48,7 @@ function App() {
             path="/trips"
             element={
               <ProtectedRoute allowedRoles={rolesFor('trips')}>
-                <Placeholder title="Trip Dispatcher" plan="PLANS/05" />
+                <Trips />
               </ProtectedRoute>
             }
           />
