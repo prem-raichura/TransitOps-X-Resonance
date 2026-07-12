@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Vehicle registry routes (doc 03). Thin controllers -> vehicleService.
 const express = require('express');
 const auth = require('../middleware/auth');
@@ -65,3 +66,11 @@ router.delete('/:slug', requireRole('FLEET_MANAGER'), async (req, res, next) => 
 });
 
 module.exports = router;
+=======
+const router = require('express').Router()
+
+// Stub — implement per the matching PLANS/ doc
+router.all('*', (req, res) => res.status(501).json({ error: 'Not implemented yet — see PLANS/' }))
+
+module.exports = router
+>>>>>>> 6db0e718af9c7de375e68fbaa07109db74c7cb65

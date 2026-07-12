@@ -1,10 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Neon pooled connection string
+  url      = env("DATABASE_URL") 
 }
 
 enum Role {
@@ -82,11 +83,10 @@ model Driver {
   licenseNo       String         @unique
   licenseCategory String // LMV / HMV
   licenseExpiry   DateTime // Rule 3
-  contact         String
+  contact         String         @unique // also app login id (dispatcher-provisioned)
   safetyScore     Int            @default(100) // trip completion %
   status          DriverStatus   @default(AVAILABLE) // Rules 3,4,6-8
   // driver mobile app
-  phone           String?        @unique // app login id (dispatcher-provisioned)
   passwordHash    String? // null until dispatcher sets app password
   locationEnabled Boolean        @default(false) // driver-controlled GPS sharing toggle
   lastLat         Float?
