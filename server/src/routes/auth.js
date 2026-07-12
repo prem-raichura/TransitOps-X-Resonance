@@ -1,6 +1,72 @@
 const router = require('express').Router()
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const prisma = require('../lib/prisma')
+const { requireAuth } = require('../middleware/auth')
 
-// Stub — implement per the matching PLANS/ doc
-router.all('*', (req, res) => res.status(501).json({ error: 'Not implemented yet — see PLANS/' }))
+const MAX_FAILED_LOGINS = 5
+const LOCK_MINUTES = 15
+const TOKEN_EXPIRY = '8h'
+
+// POST /api/auth/login { email, password, role? }
+router.post('/login', async (req, res, next) => {
+  try {
+    const { email, password, role } = req.body
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' })
+
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      return res.status(403).json({ error: `Account locked after ${MAX_FAILED_LOGINS} failed attempts. Try again later.` })
+    }
+
+    const valid = await bcrypt.compare(password, user.passwordHash)
+    if (!valid) {
+      const failedLogins = user.failedLogins + 1
+      const locked = failedLogins >= MAX_FAILED_LOGINS
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLogins: locked ? 0 : failedLogins,
+          lockedUntil: locked ? new Date(Date.now() + LOCK_MINUTES * 60 * 1000) : null,
+        },
+      })
+      if (locked) {
+        return res.status(403).json({ error: `Account locked after ${MAX_FAILED_LOGINS} failed attempts. Try again later.` })
+      }
+      return res.status(401).json({ error: 'Invalid credentials' })
+    }
+
+    // login form's role dropdown must match the account's assigned role (mockup screen 0)
+    if (role && role !== user.role) {
+      return res.status(403).json({ error: 'Role mismatch — select your assigned role' })
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLogins: 0, lockedUntil: null },
+    })
+
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRY })
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// GET /api/auth/me
+router.get('/me', requireAuth, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, name: true, email: true, role: true },
+    })
+    if (!user) return res.status(401).json({ error: 'User no longer exists' })
+    res.json({ user })
+  } catch (err) {
+    next(err)
+  }
+})
 
 module.exports = router
