@@ -42,7 +42,7 @@ export default function Drivers() {
   const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
   const [credsFor, setCredsFor] = useState(null)
-  const [credsForm, setCredsForm] = useState({ phone: '', password: '' })
+  const [credsPassword, setCredsPassword] = useState('')
   const [credsError, setCredsError] = useState('')
 
   const load = () => {
@@ -78,9 +78,9 @@ export default function Drivers() {
   const saveCredentials = async () => {
     setCredsError('')
     try {
-      await api.post(`/drivers/${credsFor.slug}/credentials`, credsForm)
+      await api.post(`/drivers/${credsFor.slug}/credentials`, { password: credsPassword })
       setCredsFor(null)
-      setCredsForm({ phone: '', password: '' })
+      setCredsPassword('')
       load()
     } catch (err) {
       setCredsError(err.response?.data?.error || 'Could not set credentials')
@@ -245,20 +245,15 @@ export default function Drivers() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Set App Password — {credsFor.name}</h2>
-            <div className="mb-3">
-              <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Phone</label>
-              <input
-                value={credsForm.phone}
-                onChange={(e) => setCredsForm({ ...credsForm, phone: e.target.value })}
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
-              />
-            </div>
+            <p className="mb-3 text-sm text-gray-600">
+              App login uses this driver's contact number: <span className="font-semibold text-gray-800">{credsFor.contact}</span>
+            </p>
             <div className="mb-4">
               <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Password</label>
               <input
                 type="password"
-                value={credsForm.password}
-                onChange={(e) => setCredsForm({ ...credsForm, password: e.target.value })}
+                value={credsPassword}
+                onChange={(e) => setCredsPassword(e.target.value)}
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
               />
             </div>
@@ -268,7 +263,7 @@ export default function Drivers() {
                 onClick={() => {
                   setCredsFor(null)
                   setCredsError('')
-                  setCredsForm({ phone: '', password: '' })
+                  setCredsPassword('')
                 }}
                 className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
               >
