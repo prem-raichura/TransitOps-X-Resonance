@@ -36,7 +36,17 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  return <AuthContext.Provider value={{ user, token, login, logout }}>{children}</AuthContext.Provider>
+  // merges updated fields (e.g. after a profile edit) into whichever storage currently holds the session
+  const updateUser = (patch) => {
+    setUser((prev) => {
+      const next = { ...prev, ...patch }
+      const storage = localStorage.getItem('user') ? localStorage : sessionStorage
+      storage.setItem('user', JSON.stringify(next))
+      return next
+    })
+  }
+
+  return <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)

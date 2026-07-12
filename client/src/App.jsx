@@ -82,6 +82,7 @@ function App() {
             }
           />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<Home />} />
       </Routes>
