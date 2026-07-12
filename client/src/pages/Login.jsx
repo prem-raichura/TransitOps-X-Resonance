@@ -109,6 +109,10 @@ export default function Login() {
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
+
+          <p className="mt-5 text-center text-xs text-gray-400">
+            Demo: manager / dispatch / safety / finance @transitops.in · demo1234
+          </p>
         </form>
       </div>
     </div>

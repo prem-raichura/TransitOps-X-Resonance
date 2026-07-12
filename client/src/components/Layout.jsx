@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { NAV_ITEMS, ROLES, can } from '../lib/rbac'
@@ -5,13 +6,14 @@ import { NAV_ITEMS, ROLES, can } from '../lib/rbac'
 export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [open, setOpen] = useState(false) // mobile sidebar toggle
 
   const items = NAV_ITEMS.filter((item) => can(user.role, item.module))
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* sidebar */}
-      <aside className="hidden w-52 flex-col bg-white shadow-sm sm:flex">
+      {/* sidebar — collapses on small screens */}
+      <aside className={`${open ? 'block' : 'hidden'} w-52 shrink-0 flex-col bg-white shadow-sm sm:flex`}>
         <div className="flex items-center gap-2 px-4 py-4">
           <div className="h-7 w-7 rounded bg-brand" />
           <span className="font-bold text-brand-dark">TransitOps</span>
@@ -21,6 +23,7 @@ export default function Layout() {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `block rounded px-3 py-2 text-sm ${isActive ? 'bg-brand/20 font-semibold text-brand-dark' : 'text-gray-600 hover:bg-gray-100'
                 }`
@@ -33,15 +36,20 @@ export default function Layout() {
       </aside>
 
       {/* main */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
-          <input
-            type="search"
-            placeholder="Search…"
-            className="w-56 rounded border border-gray-200 px-3 py-1.5 text-sm focus:border-brand focus:outline-none"
-          />
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-700">{user.name}</span>
+            <button className="rounded border px-2 py-1 text-sm sm:hidden" onClick={() => setOpen((o) => !o)}>
+              ☰
+            </button>
+            <input
+              type="search"
+              placeholder="Search…"
+              className="w-40 rounded border border-gray-200 px-3 py-1.5 text-sm focus:border-brand focus:outline-none sm:w-56"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm text-gray-700 sm:inline">{user.name}</span>
             <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{ROLES[user.role]}</span>
             <button
               onClick={() => {
@@ -54,7 +62,7 @@ export default function Layout() {
             </button>
           </div>
         </header>
-        <main className="flex-1 overflow-x-auto p-4">
+        <main className="min-w-0 flex-1 overflow-x-auto p-4 md:p-6">
           <Outlet />
         </main>
       </div>
