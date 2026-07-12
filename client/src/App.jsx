@@ -10,6 +10,7 @@ import Vehicles from './pages/Vehicles'
 import Drivers from './pages/Drivers'
 import Trips from './pages/Trips'
 import Maintenance from './pages/Maintenance'
+import Analytics from './pages/Analytics'
 import Fuel from './pages/Fuel'
 import Placeholder from './pages/Placeholder'
 
@@ -77,7 +78,7 @@ function App() {
             path="/analytics"
             element={
               <ProtectedRoute allowedRoles={rolesFor('analytics')}>
-                <Placeholder title="Reports & Analytics" plan="PLANS/09" />
+                <Analytics />
               </ProtectedRoute>
             }
           />
