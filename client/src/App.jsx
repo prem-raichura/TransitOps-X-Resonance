@@ -10,6 +10,7 @@ import Vehicles from './pages/Vehicles'
 import Drivers from './pages/Drivers'
 import Trips from './pages/Trips'
 import Maintenance from './pages/Maintenance'
+import Profile from './pages/Profile'
 import Placeholder from './pages/Placeholder'
 
 const rolesFor = (module_) => Object.keys(MATRIX[module_]).filter((role) => MATRIX[module_][role])
@@ -81,6 +82,7 @@ function App() {
             }
           />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         <Route path="*" element={<Home />} />
       </Routes>
