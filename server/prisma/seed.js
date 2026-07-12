@@ -40,7 +40,7 @@ async function main() {
     data: {
       slug: 'alex', name: 'Alex', licenseNo: 'DL-88213', licenseCategory: 'LMV',
       licenseExpiry: new Date('2028-12-31'), contact: '9876500001', safetyScore: 96,
-      status: 'AVAILABLE', phone: '9876500001', passwordHash: driverPassword,
+      status: 'AVAILABLE', passwordHash: driverPassword,
     },
   })
   await prisma.driver.create({

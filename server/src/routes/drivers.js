@@ -73,6 +73,9 @@ router.post('/', requireAuth, requireRole('SAFETY_OFFICER', 'FLEET_MANAGER'), as
     const existing = await prisma.driver.findUnique({ where: { licenseNo } })
     if (existing) return res.status(409).json({ error: 'License number already registered' })
 
+    const contactTaken = await prisma.driver.findUnique({ where: { contact } })
+    if (contactTaken) return res.status(409).json({ error: 'Contact number already registered' })
+
     const slug = await uniqueSlug(slugify(name))
     const driver = await prisma.driver.create({
       data: { slug, name, licenseNo, licenseCategory, licenseExpiry: new Date(licenseExpiry), contact },
@@ -97,6 +100,10 @@ router.put('/:slug', requireAuth, requireRole('SAFETY_OFFICER', 'FLEET_MANAGER')
     if (status && !['AVAILABLE', 'OFF_DUTY', 'SUSPENDED'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' })
     }
+    if (contact !== undefined && contact !== driver.contact) {
+      const contactTaken = await prisma.driver.findUnique({ where: { contact } })
+      if (contactTaken) return res.status(409).json({ error: 'Contact number already registered' })
+    }
 
     const updated = await prisma.driver.update({
       where: { slug: req.params.slug },
@@ -115,21 +122,19 @@ router.put('/:slug', requireAuth, requireRole('SAFETY_OFFICER', 'FLEET_MANAGER')
 })
 
 // POST /api/drivers/:slug/credentials — Dispatcher only (doc 11: driver app login provisioning)
+// Login id is the driver's contact number (already unique) — no separate phone field.
 router.post('/:slug/credentials', requireAuth, requireRole('DISPATCHER'), async (req, res, next) => {
   try {
-    const { phone, password } = req.body
-    if (!phone || !password) return res.status(400).json({ error: 'phone and password are required' })
+    const { password } = req.body
+    if (!password) return res.status(400).json({ error: 'password is required' })
 
     const driver = await prisma.driver.findUnique({ where: { slug: req.params.slug } })
     if (!driver) return res.status(404).json({ error: 'Driver not found' })
 
-    const phoneTaken = await prisma.driver.findFirst({ where: { phone, NOT: { id: driver.id } } })
-    if (phoneTaken) return res.status(409).json({ error: 'Phone number already in use' })
-
     const passwordHash = await bcrypt.hash(password, 10)
     const updated = await prisma.driver.update({
       where: { slug: req.params.slug },
-      data: { phone, passwordHash },
+      data: { passwordHash },
     })
     res.json(withComputed(updated))
   } catch (err) {
