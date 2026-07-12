@@ -31,6 +31,16 @@ const fmtExpiry = (iso) => {
 
 const emptyForm = { name: '', licenseNo: '', licenseCategory: 'LMV', licenseExpiry: '', contact: '' }
 
+const validateForm = (form) => {
+  const errors = {}
+  if (!form.name.trim()) errors.name = 'Name is required'
+  if (!form.licenseNo.trim()) errors.licenseNo = 'License number is required'
+  if (!form.contact.trim()) errors.contact = 'Contact number is required'
+  else if (!/^\d{10}$/.test(form.contact.trim())) errors.contact = 'Contact must be a 10-digit number'
+  if (!form.licenseExpiry) errors.licenseExpiry = 'License expiry is required'
+  return errors
+}
+
 export default function Drivers() {
   const { user } = useAuth()
   const editable = canEdit(user.role, 'drivers')
@@ -41,6 +51,7 @@ export default function Drivers() {
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [credsFor, setCredsFor] = useState(null)
   const [credsPassword, setCredsPassword] = useState('')
   const [credsError, setCredsError] = useState('')
@@ -65,10 +76,15 @@ export default function Drivers() {
 
   const addDriver = async () => {
     setFormError('')
+    const errors = validateForm(form)
+    setFieldErrors(errors)
+    if (Object.keys(errors).length > 0) return
+
     try {
-      await api.post('/drivers', form)
+      await api.post('/drivers', { ...form, name: form.name.trim(), licenseNo: form.licenseNo.trim(), contact: form.contact.trim() })
       setShowAdd(false)
       setForm(emptyForm)
+      setFieldErrors({})
       load()
     } catch (err) {
       setFormError(err.response?.data?.error || 'Could not add driver')
@@ -197,17 +213,21 @@ export default function Drivers() {
             {[
               { key: 'name', label: 'Name', type: 'text' },
               { key: 'licenseNo', label: 'License No', type: 'text' },
-              { key: 'contact', label: 'Contact', type: 'text' },
+              { key: 'contact', label: 'Contact', type: 'text', placeholder: '10-digit number' },
               { key: 'licenseExpiry', label: 'License Expiry', type: 'date' },
-            ].map(({ key, label, type }) => (
+            ].map(({ key, label, type, placeholder }) => (
               <div key={key} className="mb-3">
                 <label className="mb-1 block text-xs font-medium uppercase text-gray-500">{label}</label>
                 <input
                   type={type}
+                  placeholder={placeholder}
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+                  className={`w-full rounded border px-3 py-2 text-sm focus:outline-none ${
+                    fieldErrors[key] ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-brand'
+                  }`}
                 />
+                {fieldErrors[key] && <p className="mt-1 text-xs text-red-600">{fieldErrors[key]}</p>}
               </div>
             ))}
             <div className="mb-4">
@@ -227,6 +247,7 @@ export default function Drivers() {
                 onClick={() => {
                   setShowAdd(false)
                   setFormError('')
+                  setFieldErrors({})
                   setForm(emptyForm)
                 }}
                 className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
