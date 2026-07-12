@@ -18,7 +18,7 @@ cd server && npm install
 cp .env.example .env   # add Neon DATABASE_URL + JWT_SECRET
 npx prisma migrate dev --name init
 npx prisma db seed
-npm run dev            # :5000
+npm run dev            # :5050
 
 # client (web)
 cd client && npm install && npm run dev    # :5173
