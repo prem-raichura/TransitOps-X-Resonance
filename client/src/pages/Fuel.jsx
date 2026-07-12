@@ -129,35 +129,37 @@ export default function Fuel() {
       {/* expenses (toll / misc) */}
       <section className="rounded bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Other Expenses (Toll / Misc)</h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-xs uppercase text-gray-400">
-              <th className="pb-2">Trip</th>
-              <th className="pb-2">Vehicle</th>
-              <th className="pb-2">Date</th>
-              <th className="pb-2">Toll</th>
-              <th className="pb-2">Misc</th>
-              <th className="pb-2">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((e) => (
-              <tr key={e.id} className="border-t border-gray-100">
-                <td className="py-2 font-mono text-xs text-gray-500">{e.trip?.slug}</td>
-                <td className="py-2 text-gray-700">{e.trip?.vehicle?.name || '—'}</td>
-                <td className="py-2 text-gray-600">{new Date(e.date).toLocaleDateString()}</td>
-                <td className="py-2 text-gray-600">₹{(e.tollCost || 0).toLocaleString()}</td>
-                <td className="py-2 text-gray-600">₹{(e.miscCost || 0).toLocaleString()}</td>
-                <td className="py-2 font-semibold text-gray-800">₹{e.total.toLocaleString()}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase text-gray-400">
+                <th className="pb-2">Trip</th>
+                <th className="pb-2">Vehicle</th>
+                <th className="pb-2">Toll</th>
+                <th className="pb-2">Misc</th>
+                <th className="pb-2">Maintenance</th>
+                <th className="pb-2">Total</th>
               </tr>
-            ))}
-            {expenses.length === 0 && (
-              <tr>
-                <td colSpan={6} className="py-6 text-center text-gray-400">No expenses yet</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {expenses.map((e) => (
+                <tr key={e.id} className="border-t border-gray-100">
+                  <td className="py-2 font-mono text-xs text-gray-500">{e.tripSlug}</td>
+                  <td className="py-2 text-gray-700">{e.vehicle?.name || '—'}</td>
+                  <td className="py-2 text-gray-600">₹{(e.tollCost || 0).toLocaleString()}</td>
+                  <td className="py-2 text-gray-600">₹{(e.miscCost || 0).toLocaleString()}</td>
+                  <td className="py-2 text-gray-600">₹{(e.maintenanceCost || 0).toLocaleString()}</td>
+                  <td className="py-2 font-semibold text-gray-800">₹{(e.total || 0).toLocaleString()}</td>
+                </tr>
+              ))}
+              {expenses.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-6 text-center text-gray-400">No expenses yet</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   )

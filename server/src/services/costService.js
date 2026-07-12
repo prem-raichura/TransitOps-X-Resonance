@@ -1,41 +1,48 @@
 const prisma = require('../lib/prisma')
 
+// Shared cost aggregation — used by expenseService (07) and anywhere operational cost is needed.
 // Operational cost per vehicle = Σ fuel cost + Σ maintenance cost (spec 3.7).
-// Shared by Fuel/Expenses (07) and Analytics (09) — single source of truth.
-async function operationalCostByVehicle() {
-  const [vehicles, fuel, maint] = await Promise.all([
+
+// map { [vehicleId]: totalMaintenanceCost }
+async function maintenanceCostByVehicle() {
+  const rows = await prisma.maintenanceLog.groupBy({ by: ['vehicleId'], _sum: { cost: true } })
+  return Object.fromEntries(rows.map((r) => [r.vehicleId, r._sum.cost || 0]))
+}
+
+// map { [vehicleId]: { cost, liters } }
+async function fuelByVehicle() {
+  const rows = await prisma.fuelLog.groupBy({ by: ['vehicleId'], _sum: { cost: true, liters: true } })
+  return Object.fromEntries(rows.map((r) => [r.vehicleId, { cost: r._sum.cost || 0, liters: r._sum.liters || 0 }]))
+}
+
+// { byVehicle: [...], totals: { fuelTotal, maintenanceTotal, total } }
+async function perVehicleSummary() {
+  const [vehicles, fuelMap, maintMap] = await Promise.all([
     prisma.vehicle.findMany({ select: { id: true, slug: true, name: true, regNo: true } }),
-    prisma.fuelLog.groupBy({ by: ['vehicleId'], _sum: { cost: true, liters: true } }),
-    prisma.maintenanceLog.groupBy({ by: ['vehicleId'], _sum: { cost: true } }),
+    fuelByVehicle(),
+    maintenanceCostByVehicle(),
   ])
 
-  const fuelMap = Object.fromEntries(fuel.map((f) => [f.vehicleId, f._sum]))
-  const maintMap = Object.fromEntries(maint.map((m) => [m.vehicleId, m._sum.cost || 0]))
-
-  return vehicles.map((v) => {
+  let fuelTotal = 0
+  let maintenanceTotal = 0
+  const byVehicle = vehicles.map((v) => {
     const fuelCost = fuelMap[v.id]?.cost || 0
     const fuelLiters = fuelMap[v.id]?.liters || 0
-    const maintCost = maintMap[v.id] || 0
+    const maintenanceCost = maintMap[v.id] || 0
+    fuelTotal += fuelCost
+    maintenanceTotal += maintenanceCost
     return {
       slug: v.slug,
       name: v.name,
       regNo: v.regNo,
       fuelCost,
       fuelLiters,
-      maintenanceCost: maintCost,
-      operationalCost: fuelCost + maintCost,
+      maintenanceCost,
+      operationalCost: fuelCost + maintenanceCost,
     }
   })
+
+  return { byVehicle, totals: { fuelTotal, maintenanceTotal, total: fuelTotal + maintenanceTotal } }
 }
 
-async function totalOperationalCost() {
-  const [fuel, maint] = await Promise.all([
-    prisma.fuelLog.aggregate({ _sum: { cost: true } }),
-    prisma.maintenanceLog.aggregate({ _sum: { cost: true } }),
-  ])
-  const fuelTotal = fuel._sum.cost || 0
-  const maintTotal = maint._sum.cost || 0
-  return { fuelTotal, maintenanceTotal: maintTotal, total: fuelTotal + maintTotal }
-}
-
-module.exports = { operationalCostByVehicle, totalOperationalCost }
+module.exports = { maintenanceCostByVehicle, fuelByVehicle, perVehicleSummary }
