@@ -13,6 +13,9 @@ app.use(express.json())
 // Fuel-meter proof photos live on Cloudinary (src/lib/cloudinary.js) — no local uploads dir.
 // Local disk is ephemeral/read-only on Vercel serverless.
 
+app.get('/', (req, res) =>
+  res.json({ service: 'TransitOps API', status: 'running', health: '/api/health', docs: 'PLANS/' }),
+)
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'transitops-api' }))
 
 // Module routers — implemented per PLANS/02-09, 11-12
