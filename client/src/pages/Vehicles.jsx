@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { listVehicles, deleteVehicle } from '../api/vehicles';
 import StatusBadge from '../components/StatusBadge';
+import { TableSkeleton } from '../components/Skeleton';
 import VehicleFormModal from './VehicleFormModal';
 
 const TYPE_OPTIONS = [
@@ -147,11 +148,7 @@ export default function Vehicles() {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading ? (
-              <tr>
-                <td className={td} colSpan={isManager ? 8 : 7}>
-                  Loading…
-                </td>
-              </tr>
+              <TableSkeleton cols={isManager ? 8 : 7} rows={5} />
             ) : vehicles.length === 0 ? (
               <tr>
                 <td className={`${td} text-slate-400`} colSpan={isManager ? 8 : 7}>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
+import { TableSkeleton } from '../components/Skeleton'
 
 const LOGGED_BY_STYLE = {
   DRIVER: 'bg-blue-100 text-blue-700',
@@ -14,6 +15,7 @@ export default function Fuel() {
   const [expenses, setExpenses] = useState([])
   const [summary, setSummary] = useState(null)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([api.get('/fuel'), api.get('/expenses'), api.get('/expenses/summary')])
@@ -23,6 +25,7 @@ export default function Fuel() {
         setSummary(s.data)
       })
       .catch(() => setError('Could not load fuel & expenses'))
+      .finally(() => setLoading(false))
   }, [])
 
   return (
@@ -30,6 +33,19 @@ export default function Fuel() {
       {error && <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
       {/* operational cost summary (spec 3.7) */}
+      {loading && (
+        <section className="rounded bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="skeleton h-4 w-64" />
+            <div className="skeleton h-6 w-24" />
+          </div>
+          <table className="w-full text-sm">
+            <tbody>
+              <TableSkeleton cols={5} rows={3} cellClass="py-2 pr-4" />
+            </tbody>
+          </table>
+        </section>
+      )}
       {summary && (
         <section className="rounded bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
@@ -84,7 +100,8 @@ export default function Fuel() {
               </tr>
             </thead>
             <tbody>
-              {fuel.map((f) => (
+              {loading && <TableSkeleton cols={8} rows={4} cellClass="py-2 pr-4" />}
+              {!loading && fuel.map((f) => (
                 <tr key={f.id} className="border-t border-gray-100">
                   <td className="py-2 font-medium text-gray-700">{f.vehicle?.name}</td>
                   <td className="py-2 font-mono text-xs text-gray-500">{f.trip?.slug || '—'}</td>
@@ -116,7 +133,7 @@ export default function Fuel() {
                   </td>
                 </tr>
               ))}
-              {fuel.length === 0 && (
+              {!loading && fuel.length === 0 && (
                 <tr>
                   <td colSpan={8} className="py-6 text-center text-gray-400">No fuel logs yet</td>
                 </tr>
@@ -142,7 +159,8 @@ export default function Fuel() {
               </tr>
             </thead>
             <tbody>
-              {expenses.map((e) => (
+              {loading && <TableSkeleton cols={6} rows={3} cellClass="py-2 pr-4" />}
+              {!loading && expenses.map((e) => (
                 <tr key={e.id} className="border-t border-gray-100">
                   <td className="py-2 font-mono text-xs text-gray-500">{e.tripSlug}</td>
                   <td className="py-2 text-gray-700">{e.vehicle?.name || '—'}</td>
@@ -152,7 +170,7 @@ export default function Fuel() {
                   <td className="py-2 font-semibold text-gray-800">₹{(e.total || 0).toLocaleString()}</td>
                 </tr>
               ))}
-              {expenses.length === 0 && (
+              {!loading && expenses.length === 0 && (
                 <tr>
                   <td colSpan={6} className="py-6 text-center text-gray-400">No expenses yet</td>
                 </tr>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { canEdit } from '../lib/rbac'
+import { TableSkeleton } from '../components/Skeleton'
 
 /* Generate a random secure password — letters + digits + symbols */
 const generatePassword = () => {
@@ -84,6 +85,7 @@ export default function Drivers() {
 
   /* drivers state */
   const [drivers, setDrivers] = useState([])
+  const [driversLoading, setDriversLoading] = useState(true)
   const [driversError, setDriversError] = useState('')
 
   /* driver status toggle (Safety Officer) */
@@ -102,6 +104,7 @@ export default function Drivers() {
 
   /* staff (dispatchers) state — Fleet Manager only */
   const [staff, setStaff] = useState([])
+  const [staffLoading, setStaffLoading] = useState(isManager)
   const [staffError, setStaffError] = useState('')
   const [showAddStaff, setShowAddStaff] = useState(false)
   const [staffForm, setStaffForm] = useState(emptyStaffForm)
@@ -117,6 +120,7 @@ export default function Drivers() {
       .get('/drivers')
       .then(({ data }) => setDrivers(data))
       .catch(() => setDriversError('Could not load drivers'))
+      .finally(() => setDriversLoading(false))
   }
 
   /* ── Load staff (Fleet Manager only) ─────────────────────────── */
@@ -126,6 +130,7 @@ export default function Drivers() {
       .get('/staff')
       .then(({ data }) => setStaff(data))
       .catch(() => setStaffError('Could not load staff'))
+      .finally(() => setStaffLoading(false))
   }
 
   useEffect(() => {
@@ -242,7 +247,7 @@ export default function Drivers() {
           {isSafetyOfficer && (
             <button
               onClick={() => setShowAddDriver(true)}
-              className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+              className="btn btn-primary"
             >
               + Add Driver
             </button>
@@ -269,7 +274,10 @@ export default function Drivers() {
               </tr>
             </thead>
             <tbody>
-              {drivers.map((d) => {
+              {driversLoading && (
+                <TableSkeleton cols={(canEditDrivers || isDispatcher) ? 9 : 8} rows={4} cellClass="px-4 py-3" />
+              )}
+              {!driversLoading && drivers.map((d) => {
                 const tier = safetyTier(d.safetyScore)
                 return (
                   <tr key={d.slug} className="border-b border-gray-50 last:border-0">
@@ -333,7 +341,7 @@ export default function Drivers() {
                   </tr>
                 )
               })}
-              {drivers.length === 0 && (
+              {!driversLoading && drivers.length === 0 && (
                 <tr>
                   <td colSpan={9} className="py-6 text-center text-gray-400 text-sm">No drivers registered yet</td>
                 </tr>
@@ -357,7 +365,7 @@ export default function Drivers() {
             </div>
             <button
               onClick={() => setShowAddStaff(true)}
-              className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+              className="btn btn-primary"
             >
               + Add Staff
             </button>
@@ -377,7 +385,8 @@ export default function Drivers() {
                 </tr>
               </thead>
               <tbody>
-                {staff.map((m) => (
+                {staffLoading && <TableSkeleton cols={5} rows={3} cellClass="px-4 py-3" />}
+                {!staffLoading && staff.map((m) => (
                   <tr key={m.id} className="border-b border-gray-50 last:border-0">
                     <td className="px-4 py-3 font-medium text-gray-800">{m.name}</td>
                     <td className="px-4 py-3 text-gray-600">{m.email}</td>
@@ -399,7 +408,7 @@ export default function Drivers() {
                     </td>
                   </tr>
                 ))}
-                {staff.length === 0 && (
+                {!staffLoading && staff.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-6 text-center text-gray-400 text-sm">No staff accounts yet</td>
                   </tr>
@@ -448,13 +457,13 @@ export default function Drivers() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => { setShowAddDriver(false); setDriverFormError(''); setDriverFieldErrors({}); setDriverForm(emptyDriverForm) }}
-                className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                className="btn btn-ghost"
               >
                 Cancel
               </button>
               <button
                 onClick={addDriver}
-                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+                className="btn btn-primary"
               >
                 Save
               </button>
@@ -512,13 +521,13 @@ export default function Drivers() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => { setShowAddStaff(false); setStaffFormError(''); setStaffFieldErrors({}); setStaffForm(emptyStaffForm) }}
-                className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                className="btn btn-ghost"
               >
                 Cancel
               </button>
               <button
                 onClick={addStaff}
-                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+                className="btn btn-primary"
               >
                 Create Account
               </button>
@@ -556,7 +565,7 @@ export default function Drivers() {
                       setPasswordCopied(true)
                       setTimeout(() => setPasswordCopied(false), 2000)
                     }}
-                    className="shrink-0 rounded bg-brand px-3 py-1.5 text-xs font-semibold text-brand-dark hover:brightness-95"
+                    className="btn btn-primary btn-sm shrink-0"
                   >
                     {passwordCopied ? '✓ Copied' : 'Copy'}
                   </button>
@@ -569,7 +578,7 @@ export default function Drivers() {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => { setCreatedStaff(null); setShowAddStaff(false) }}
-                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+                className="btn btn-primary"
               >
                 Done
               </button>
@@ -600,7 +609,7 @@ export default function Drivers() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => { setCredsFor(null); setCredsError(''); setCredsPassword('') }}
-                className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                className="btn btn-ghost"
               >
                 Cancel
               </button>
@@ -648,13 +657,13 @@ export default function Drivers() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmRemove(null)}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmRemoveExec}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                className="btn btn-danger"
               >
                 Yes, Remove
               </button>

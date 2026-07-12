@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
+import Skeleton, { TableSkeleton } from '../components/Skeleton'
 
 const TYPE_OPTIONS = [
   ['', 'Vehicle Type: All'],
@@ -82,6 +83,7 @@ export default function Dashboard() {
     }
   }, [type, status, region])
 
+  const loading = !data && !error
   const kpis = data?.kpis
   const breakdown = data?.vehicleStatusBreakdown
   const breakdownTotal = breakdown ? VEHICLE_STATUSES.reduce((sum, s) => sum + breakdown[s], 0) : 0
@@ -118,6 +120,17 @@ export default function Dashboard() {
 
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
+      {loading && (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="rounded bg-white p-4 shadow-sm">
+              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="mt-2 h-7 w-12" />
+            </div>
+          ))}
+        </div>
+      )}
+
       {kpis && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           <KpiCard title="Active Vehicles" value={kpis.activeVehicles} />
@@ -145,6 +158,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
+              {loading && <TableSkeleton cols={5} rows={4} cellClass="py-2 pr-4" />}
               {data?.recentTrips.map((t) => (
                 <tr key={t.id} className="border-t border-gray-100">
                   <td className="py-2 font-medium text-gray-700">{t.id.toUpperCase()}</td>
@@ -173,6 +187,14 @@ export default function Dashboard() {
         <section className="rounded bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Vehicle Status</h2>
           <div className="space-y-3">
+            {loading &&
+              VEHICLE_STATUSES.map((s) => (
+                <div key={s} className="flex items-center gap-3">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-2.5 flex-1 rounded-full" />
+                  <Skeleton className="h-3 w-6" />
+                </div>
+              ))}
             {breakdown &&
               VEHICLE_STATUSES.map((s) => {
                 const count = breakdown[s]

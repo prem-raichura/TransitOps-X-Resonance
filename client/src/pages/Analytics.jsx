@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import api from '../api/client'
+import Skeleton from '../components/Skeleton'
 
 const KPI = [
   { key: 'fuelEfficiency', label: 'Fuel Efficiency', suffix: ' km/l' },
@@ -25,13 +26,16 @@ export default function Analytics() {
   const [revenue, setRevenue] = useState([])
   const [costliest, setCostliest] = useState([])
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
       api.get('/analytics/summary').then(({ data }) => setSummary(data)),
       api.get('/analytics/monthly-revenue').then(({ data }) => setRevenue(data)),
       api.get('/analytics/costliest-vehicles').then(({ data }) => setCostliest(data)),
-    ]).catch(() => setError('Could not load analytics'))
+    ])
+      .catch(() => setError('Could not load analytics'))
+      .finally(() => setLoading(false))
   }, [])
 
   const download = async (report) => {
@@ -64,7 +68,14 @@ export default function Analytics() {
 
       {/* 4 KPI cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {KPI.map((c) => (
+        {loading &&
+          KPI.map((c) => (
+            <div key={c.key} className="rounded bg-white p-5 shadow-sm">
+              <Skeleton className="h-3 w-2/3" />
+              <Skeleton className="mt-3 h-8 w-24" />
+            </div>
+          ))}
+        {!loading && KPI.map((c) => (
           <div
             key={c.key}
             className={`rounded p-5 shadow-sm ${c.highlight ? 'bg-brand/20 ring-2 ring-brand' : 'bg-white'}`}
@@ -80,13 +91,15 @@ export default function Analytics() {
         {/* Monthly Revenue bar chart */}
         <section className="rounded bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Monthly Revenue</h2>
-          {revenue.length === 0 ? (
+          {loading ? (
+            <Skeleton className="h-[260px] w-full" />
+          ) : revenue.length === 0 ? (
             <p className="py-16 text-center text-gray-400">No revenue yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={revenue}>
-                <XAxis dataKey="month" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis fontSize={12} tickLine={false} axisLine={false} width={70} tickFormatter={(n) => n.toLocaleString()} />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} width={70} tickFormatter={(n) => n.toLocaleString()} />
                 <Tooltip formatter={(n) => n.toLocaleString()} />
                 <Bar dataKey="revenue" fill="#2563eb" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -97,13 +110,15 @@ export default function Analytics() {
         {/* Top Costliest Vehicles — horizontal bars */}
         <section className="rounded bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Top Costliest Vehicles</h2>
-          {costliest.length === 0 ? (
+          {loading ? (
+            <Skeleton className="h-[260px] w-full" />
+          ) : costliest.length === 0 ? (
             <p className="py-16 text-center text-gray-400">No cost data yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={costliest} layout="vertical" margin={{ left: 20 }}>
-                <XAxis type="number" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(n) => n.toLocaleString()} />
-                <YAxis type="category" dataKey="vehicle" fontSize={12} tickLine={false} axisLine={false} width={90} />
+                <XAxis type="number" tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} tickFormatter={(n) => n.toLocaleString()} />
+                <YAxis type="category" dataKey="vehicle" tick={{ fontSize: 12, fill: '#94a3b8' }} tickLine={false} axisLine={false} width={90} />
                 <Tooltip formatter={(n) => n.toLocaleString()} />
                 <Bar dataKey="cost" radius={[0, 4, 4, 0]}>
                   {costliest.map((_, i) => (

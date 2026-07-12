@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { canEdit } from '../lib/rbac'
+import { TableSkeleton } from '../components/Skeleton'
 
 const STATUS_STYLE = {
   IN_SHOP: 'bg-orange-500 text-white',
@@ -15,12 +16,18 @@ export default function Maintenance() {
   const { user } = useAuth()
   const editable = canEdit(user.role, 'maintenance') // Fleet Manager only; Financial Analyst views
   const [logs, setLogs] = useState([])
+  const [loading, setLoading] = useState(true)
   const [vehicles, setVehicles] = useState([])
   const [form, setForm] = useState(EMPTY_FORM)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const loadLogs = () => api.get('/maintenance').then(({ data }) => setLogs(data)).catch(() => setError('Could not load maintenance log'))
+  const loadLogs = () =>
+    api
+      .get('/maintenance')
+      .then(({ data }) => setLogs(data))
+      .catch(() => setError('Could not load maintenance log'))
+      .finally(() => setLoading(false))
 
   useEffect(() => {
     loadLogs()
@@ -146,7 +153,8 @@ export default function Maintenance() {
             </tr>
           </thead>
           <tbody>
-            {logs.map((log) => (
+            {loading && <TableSkeleton cols={editable ? 7 : 6} rows={5} cellClass="py-2 pr-4" />}
+            {!loading && logs.map((log) => (
               <tr key={log.slug} className="border-t border-gray-100">
                 <td className="py-2 font-mono text-xs text-gray-500">{log.slug}</td>
                 <td className="py-2 font-medium text-gray-700">{log.vehicle.name}</td>
@@ -173,7 +181,7 @@ export default function Maintenance() {
                 )}
               </tr>
             ))}
-            {logs.length === 0 && (
+            {!loading && logs.length === 0 && (
               <tr>
                 <td colSpan={editable ? 7 : 6} className="py-6 text-center text-gray-400">
                   No maintenance records yet

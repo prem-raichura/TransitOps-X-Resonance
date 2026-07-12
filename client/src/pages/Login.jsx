@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { ROLES, HOME_ROUTE } from '../lib/rbac'
+import ThemeToggle from '../components/ThemeToggle'
 
 export default function Login() {
   const { login } = useAuth()
@@ -27,16 +28,17 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen">
+      <ThemeToggle className="absolute right-4 top-4 z-10" />
       {/* brand panel (mockup screen 0) */}
       <div className="hidden w-2/5 flex-col justify-between bg-brand-dark p-10 md:flex">
         <div>
           <div className="h-10 w-10 rounded bg-brand" />
           <h1 className="mt-4 text-2xl font-bold text-white">TransitOps</h1>
-          <p className="text-sm text-gray-400">Smart Transport Operations Platform</p>
+          <p className="text-sm text-white/60">Smart Transport Operations Platform</p>
         </div>
-        <div className="text-sm text-gray-400">
-          <p className="mb-2 font-semibold text-gray-300">One login, four roles:</p>
+        <div className="text-sm text-white/60">
+          <p className="mb-2 font-semibold text-white/80">One login, four roles:</p>
           <ul className="space-y-1">
             {Object.values(ROLES).map((r) => (
               <li key={r} className="flex items-center gap-2">
@@ -45,7 +47,7 @@ export default function Login() {
             ))}
           </ul>
         </div>
-        <p className="text-xs text-gray-500">TransitOps © 2026 · RBAC enabled</p>
+        <p className="text-xs text-white/40">TransitOps © 2026 · RBAC enabled</p>
       </div>
 
       {/* form */}

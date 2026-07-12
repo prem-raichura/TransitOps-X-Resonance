@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { MATRIX, NAV_ITEMS, ROLES, canEdit } from '../lib/rbac'
+import Skeleton from '../components/Skeleton'
 
 const LEVEL_LABEL = { full: '✓', view: 'view' }
 
@@ -11,12 +12,14 @@ export default function Settings() {
   const [form, setForm] = useState({ depotName: '', currency: '', distanceUnit: '' })
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     api
       .get('/settings')
       .then(({ data }) => setForm({ depotName: data.depotName, currency: data.currency, distanceUnit: data.distanceUnit }))
       .catch(() => setError('Could not load settings'))
+      .finally(() => setLoading(false))
   }, [])
 
   const save = async () => {
@@ -42,12 +45,16 @@ export default function Settings() {
             <label className="mb-1 block text-xs font-medium uppercase text-gray-500">
               {key === 'depotName' ? 'Depot Name' : key === 'currency' ? 'Currency' : 'Distance Unit'}
             </label>
+            {loading ? (
+              <Skeleton className="h-9 w-full" />
+            ) : (
             <input
               value={form[key]}
               disabled={!editable}
               onChange={(e) => setForm({ ...form, [key]: e.target.value })}
               className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none disabled:bg-gray-50"
             />
+            )}
           </div>
         ))}
         {editable && (

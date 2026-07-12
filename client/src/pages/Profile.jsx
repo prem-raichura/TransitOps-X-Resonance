@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { NAV_ITEMS, ROLES, can } from '../lib/rbac'
+import Skeleton from '../components/Skeleton'
 
 const ACCESS_LABEL = { full: 'Full Access', view: 'View Only' }
 
@@ -106,6 +107,7 @@ export default function Profile() {
 
   if (!user) return null
 
+  const profileLoading = !profile && !error
   const inputCls = 'w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:border-brand focus:outline-none'
 
   return (
@@ -121,15 +123,25 @@ export default function Profile() {
           )}
         </div>
 
-        <div className="mb-5 flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-lg font-bold text-brand-dark">
-            {initials(profile?.name ?? user.name)}
+        {profileLoading ? (
+          <div className="mb-5 flex items-center gap-4">
+            <Skeleton className="h-14 w-14 rounded-full" />
+            <div className="flex-1">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="mt-2 h-5 w-28 rounded-full" />
+            </div>
           </div>
-          <div>
-            <div className="text-base font-semibold text-gray-800">{profile?.name ?? user.name}</div>
-            <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{ROLES[user.role]}</span>
+        ) : (
+          <div className="mb-5 flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-lg font-bold text-brand-dark">
+              {initials(profile?.name ?? user.name)}
+            </div>
+            <div>
+              <div className="text-base font-semibold text-gray-800">{profile?.name ?? user.name}</div>
+              <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{ROLES[user.role]}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
@@ -180,6 +192,15 @@ export default function Profile() {
               </button>
             </div>
           </div>
+        ) : profileLoading ? (
+          <dl className="space-y-3 text-sm">
+            {['Name', 'Email', 'Role', 'Member Since'].map((label) => (
+              <div key={label} className="flex justify-between border-t border-gray-100 pt-3">
+                <dt className="text-gray-500">{label}</dt>
+                <Skeleton className="h-4 w-32" />
+              </div>
+            ))}
+          </dl>
         ) : (
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between border-t border-gray-100 pt-3">

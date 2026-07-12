@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { canEdit } from '../lib/rbac'
+import Skeleton from '../components/Skeleton'
 
 const STATUS_BADGE = {
   DRAFT: 'bg-gray-100 text-gray-600',
@@ -21,6 +22,7 @@ export default function Trips() {
   const editable = canEdit(user.role, 'trips') // DISPATCHER full, SAFETY_OFFICER view-only
 
   const [trips, setTrips] = useState([])
+  const [loading, setLoading] = useState(true)
   const [vehicles, setVehicles] = useState([])
   const [drivers, setDrivers] = useState([])
   const [form, setForm] = useState(EMPTY_FORM)
@@ -29,7 +31,12 @@ export default function Trips() {
   const [completeFor, setCompleteFor] = useState(null) // trip pending Complete modal
   const [approveFor, setApproveFor] = useState(null) // trip pending Verify & Approve modal
 
-  const loadTrips = () => api.get('/trips').then(({ data }) => setTrips(data)).catch(() => setError('Could not load trips'))
+  const loadTrips = () =>
+    api
+      .get('/trips')
+      .then(({ data }) => setTrips(data))
+      .catch(() => setError('Could not load trips'))
+      .finally(() => setLoading(false))
 
   useEffect(() => {
     loadTrips()
@@ -179,7 +186,18 @@ export default function Trips() {
         <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Live Board</h2>
         {!editable && error && <div className="mb-3 text-sm text-red-600">{error}</div>}
         <div className="space-y-3">
-          {trips.length === 0 && <p className="text-sm text-gray-400">No trips yet.</p>}
+          {loading &&
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded border border-gray-200 p-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-20 rounded-full" />
+                </div>
+                <Skeleton className="mt-2 h-3.5 w-2/3" />
+                <Skeleton className="mt-2 h-3 w-1/2" />
+              </div>
+            ))}
+          {!loading && trips.length === 0 && <p className="text-sm text-gray-400">No trips yet.</p>}
           {trips.map((t) => (
             <div
               key={t.slug}
@@ -336,6 +354,11 @@ function ApproveModal({ trip, busy, onClose, onApprove }) {
 }
 
 function Modal({ title, children, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded bg-white p-5 shadow-lg" onClick={(e) => e.stopPropagation()}>
