@@ -9,6 +9,7 @@ import Vehicles from './pages/Vehicles'
 import Drivers from './pages/Drivers'
 import Trips from './pages/Trips'
 import Maintenance from './pages/Maintenance'
+import Analytics from './pages/Analytics'
 import Placeholder from './pages/Placeholder'
 
 const rolesFor = (module_) => Object.keys(MATRIX[module_]).filter((role) => MATRIX[module_][role])
@@ -75,7 +76,7 @@ function App() {
             path="/analytics"
             element={
               <ProtectedRoute allowedRoles={rolesFor('analytics')}>
-                <Placeholder title="Reports & Analytics" plan="PLANS/09" />
+                <Analytics />
               </ProtectedRoute>
             }
           />
