@@ -5,6 +5,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Settings from './pages/Settings'
+import Drivers from './pages/Drivers'
 import Trips from './pages/Trips'
 import Placeholder from './pages/Placeholder'
 
@@ -40,7 +41,7 @@ function App() {
             path="/drivers"
             element={
               <ProtectedRoute allowedRoles={rolesFor('drivers')}>
-                <Placeholder title="Drivers & Safety Profiles" plan="PLANS/04" />
+                <Drivers />
               </ProtectedRoute>
             }
           />
