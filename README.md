@@ -219,14 +219,3 @@ EXPO_PUBLIC_API_URL=https://<your-api>.vercel.app/api
 - **Client project:** Root Directory `transitops-app/client`; set `VITE_API_URL`
   (Vite bakes env at build time — redeploy after changing). `vercel.json` provides SPA rewrites.
 - Fuel proof photos use Cloudinary because the Vercel serverless filesystem is ephemeral.
-
----
-
-## Documentation
-
-Full module-by-module plans and the database schema live in [`../PLANS/`](../PLANS/):
-
-- `00-OVERVIEW.md` → `12-GPS-TRACKING.md` — one doc per module
-- `13-DRIVER-APP-ROADMAP.md` — mobile UI + feature roadmap
-- `PRISMA-SCHEMA.pdf` — full database schema reference
-- `10-GIT-WORKFLOW.md` — branch strategy and commit sequence
