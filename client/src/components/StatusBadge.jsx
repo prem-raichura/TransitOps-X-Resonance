@@ -8,6 +8,12 @@ const STYLES = {
   // shared statuses used elsewhere
   OFF_DUTY: 'bg-slate-100 text-slate-700 ring-slate-500/20',
   SUSPENDED: 'bg-red-100 text-red-800 ring-red-600/20',
+  // trip statuses
+  DRAFT: 'bg-slate-100 text-slate-700 ring-slate-500/20',
+  DISPATCHED: 'bg-blue-100 text-blue-800 ring-blue-600/20',
+  PENDING_COMPLETION: 'bg-orange-100 text-orange-800 ring-orange-600/20',
+  COMPLETED: 'bg-green-100 text-green-800 ring-green-600/20',
+  CANCELLED: 'bg-red-100 text-red-800 ring-red-600/20',
 };
 
 const LABELS = {
@@ -17,6 +23,11 @@ const LABELS = {
   RETIRED: 'Retired',
   OFF_DUTY: 'Off Duty',
   SUSPENDED: 'Suspended',
+  DRAFT: 'Draft',
+  DISPATCHED: 'Dispatched',
+  PENDING_COMPLETION: 'Pending',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled',
 };
 
 export default function StatusBadge({ status }) {

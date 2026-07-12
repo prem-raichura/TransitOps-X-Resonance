@@ -10,7 +10,6 @@ import Vehicles from './pages/Vehicles'
 import Drivers from './pages/Drivers'
 import Trips from './pages/Trips'
 import Maintenance from './pages/Maintenance'
-import Profile from './pages/Profile'
 import Fuel from './pages/Fuel'
 import Placeholder from './pages/Placeholder'
 

@@ -1,4 +1,27 @@
 const router = require('express').Router()
+<<<<<<< HEAD
+const { requireAuth } = require('../middleware/auth')
+const { requireRole } = require('../middleware/rbac')
+const fuelService = require('../services/fuelService')
+
+router.use(requireAuth)
+
+// GET /api/fuel — Financial Analyst (full) + Safety Officer (view)
+router.get('/', requireRole('FINANCIAL_ANALYST', 'SAFETY_OFFICER'), async (req, res, next) => {
+  try {
+    res.json(await fuelService.list())
+  } catch (e) {
+    next(e)
+  }
+})
+
+// POST /api/fuel — Financial Analyst only
+router.post('/', requireRole('FINANCIAL_ANALYST'), async (req, res, next) => {
+  try {
+    res.status(201).json(await fuelService.create(req.body))
+  } catch (e) {
+    next(e)
+=======
 const prisma = require('../lib/prisma')
 const { requireAuth } = require('../middleware/auth')
 const { requireRole } = require('../middleware/rbac')
@@ -46,6 +69,7 @@ router.post('/', requireRole('FINANCIAL_ANALYST'), async (req, res, next) => {
     res.status(201).json(log)
   } catch (err) {
     next(err)
+>>>>>>> b03087912be8a91e1a21fd1a2aa45488e0eabd31
   }
 })
 
