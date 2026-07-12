@@ -13,6 +13,7 @@ import Trips from './pages/Trips'
 import Maintenance from './pages/Maintenance'
 import Analytics from './pages/Analytics'
 import Fuel from './pages/Fuel'
+import Profile from './pages/Profile'
 import Placeholder from './pages/Placeholder'
 
 const rolesFor = (module_) => Object.keys(MATRIX[module_]).filter((role) => MATRIX[module_][role])
