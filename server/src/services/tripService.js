@@ -190,6 +190,7 @@ async function submitCompletion(slug, body = {}) {
         completedLat: Number(lat),
         completedLng: Number(lng),
         completionSubmittedAt: new Date(),
+        rejectionReason: null, // clear any prior rejection on re-submit
       },
       include: TRIP_INCLUDE,
     })
@@ -221,8 +222,13 @@ async function rejectCompletion(slug, reason) {
     if (!trip) fail(404, 'Trip not found')
     if (trip.status !== 'PENDING_COMPLETION') fail(400, 'No completion awaiting approval')
 
-    // submitted odometer/GPS left intact for audit; vehicle + driver already ON_TRIP so no restore
-    return tx.trip.update({ where: { slug }, data: { status: 'DISPATCHED' }, include: TRIP_INCLUDE })
+    // submitted odometer/GPS left intact for audit; vehicle + driver already ON_TRIP so no restore.
+    // reason stored so the driver app can show why it bounced back.
+    return tx.trip.update({
+      where: { slug },
+      data: { status: 'DISPATCHED', rejectionReason: reason, completionSubmittedAt: null },
+      include: TRIP_INCLUDE,
+    })
   })
 }
 

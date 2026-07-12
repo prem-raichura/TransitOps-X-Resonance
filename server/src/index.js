@@ -14,7 +14,7 @@ app.use(express.json())
 // Local disk is ephemeral/read-only on Vercel serverless.
 
 app.get('/', (req, res) =>
-  res.json({ service: 'TransitOps API', status: 'running', health: '/api/health', docs: 'PLANS/' }),
+  res.json({ service: 'TransitOps API', status: 'running', health: '/api/health' }),
 )
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'transitops-api' }))
 
@@ -29,6 +29,7 @@ app.use('/api/expenses', require('./routes/expenses'))
 app.use('/api/dashboard', require('./routes/dashboard'))
 app.use('/api/analytics', require('./routes/analytics'))
 app.use('/api/settings', require('./routes/settings'))
+app.use('/api/staff', require('./routes/staff'))
 app.use('/api/driver-auth', require('./routes/driverAuth'))
 app.use('/api/driver', require('./routes/driverApp'))
 app.use('/api/tracking', require('./routes/tracking'))
