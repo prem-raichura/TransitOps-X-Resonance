@@ -152,19 +152,19 @@ export default function Trips() {
 
           {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
 
-          <div className="mt-5 flex gap-3">
+          <div className="mt-5 flex flex-wrap gap-3">
             <button
               onClick={dispatch}
               disabled={!canDispatch || busy}
-              className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95 disabled:opacity-50"
+              className="btn btn-primary"
             >
               {busy ? 'Dispatching…' : 'Dispatch'}
             </button>
             <button
               onClick={() => setForm(EMPTY_FORM)}
-              className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+              className="btn btn-secondary"
             >
-              Cancel
+              Clear
             </button>
           </div>
         </section>
@@ -269,15 +269,14 @@ function Field({ label, children }) {
 }
 
 function ActBtn({ children, onClick, disabled, variant }) {
-  const base = 'rounded px-3 py-1.5 text-xs font-semibold disabled:opacity-50'
   const styles =
     variant === 'ghost'
-      ? 'border border-gray-300 text-gray-600 hover:bg-gray-50'
+      ? 'btn btn-secondary btn-sm'
       : variant === 'danger'
-        ? 'bg-red-600 text-white hover:bg-red-700'
-        : 'bg-brand text-brand-dark hover:brightness-95'
+        ? 'btn btn-danger btn-sm'
+        : 'btn btn-primary btn-sm'
   return (
-    <button onClick={onClick} disabled={disabled} className={`${base} ${styles}`}>
+    <button onClick={onClick} disabled={disabled} className={styles}>
       {children}
     </button>
   )

@@ -115,7 +115,7 @@ export default function Profile() {
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-bold uppercase text-gray-500">Account Details</h2>
           {!editing && (
-            <button onClick={startEdit} className="text-xs font-semibold text-blue-600 hover:underline">
+            <button onClick={startEdit} className="btn btn-link-blue btn-sm">
               Edit
             </button>
           )}
@@ -163,18 +163,18 @@ export default function Profile() {
 
             {editError && <p className="text-sm text-red-600">{editError}</p>}
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               <button
                 onClick={saveEdit}
                 disabled={editBusy}
-                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95 disabled:opacity-60"
+                className="btn btn-primary"
               >
                 {editBusy ? 'Saving…' : 'Save changes'}
               </button>
               <button
                 onClick={cancelEdit}
                 disabled={editBusy}
-                className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
@@ -252,7 +252,7 @@ export default function Profile() {
           <button
             onClick={changePassword}
             disabled={busy}
-            className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95 disabled:opacity-60"
+            className="btn btn-primary"
           >
             {busy ? 'Saving…' : 'Save changes'}
           </button>

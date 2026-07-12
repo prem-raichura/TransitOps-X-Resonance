@@ -8,6 +8,14 @@ export const ROLES = {
   FINANCIAL_ANALYST: 'Financial Analyst',
 }
 
+// short code for the header avatar badge — display only
+export const ROLE_CODE = {
+  FLEET_MANAGER: 'FM',
+  DISPATCHER: 'DI',
+  SAFETY_OFFICER: 'SO',
+  FINANCIAL_ANALYST: 'FA',
+}
+
 export const MATRIX = {
   fleet: { FLEET_MANAGER: 'full', DISPATCHER: 'view', SAFETY_OFFICER: null, FINANCIAL_ANALYST: 'view' },
   drivers: { FLEET_MANAGER: 'full', DISPATCHER: 'view', SAFETY_OFFICER: 'full', FINANCIAL_ANALYST: null },

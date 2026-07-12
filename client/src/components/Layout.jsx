@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { NAV_ITEMS, ROLES, can } from '../lib/rbac'
+import { NAV_ITEMS, ROLE_CODE, can } from '../lib/rbac'
+import ThemeToggle from './ThemeToggle'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -39,7 +40,7 @@ export default function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
           <div className="flex items-center gap-3">
-            <button className="rounded border px-2 py-1 text-sm sm:hidden" onClick={() => setOpen((o) => !o)}>
+            <button className="btn btn-ghost btn-sm btn-icon sm:hidden" onClick={() => setOpen((o) => !o)} aria-label="Toggle menu">
               ☰
             </button>
             <input
@@ -49,16 +50,19 @@ export default function Layout() {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/profile" className="flex items-center gap-3 hover:opacity-80">
+            <ThemeToggle />
+            <Link to="/profile" className="flex items-center gap-2 hover:opacity-80">
               <span className="hidden text-sm font-medium text-gray-700 sm:inline">{user.name}</span>
-              <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{ROLES[user.role]}</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                {ROLE_CODE[user.role]}
+              </span>
             </Link>
             <button
               onClick={() => {
                 logout()
                 navigate('/login')
               }}
-              className="text-sm text-gray-500 hover:text-red-600"
+              className="btn btn-ghost btn-sm text-gray-500 hover:text-red-600"
             >
               Logout
             </button>

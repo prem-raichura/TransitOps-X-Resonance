@@ -202,14 +202,14 @@ export default function VehicleFormModal({ open, onClose, onSaved, vehicle }) {
           <button
             type="button"
             onClick={close}
-            className="rounded-md border px-4 py-2 text-sm hover:bg-slate-50"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={busy}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+            className="btn btn-primary"
           >
             {busy ? 'Saving…' : isEdit ? 'Save changes' : 'Add vehicle'}
           </button>

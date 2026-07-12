@@ -606,7 +606,7 @@ export default function Drivers() {
               </button>
               <button
                 onClick={saveCredentials}
-                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+                className="btn btn-primary"
               >
                 Save
               </button>
