@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { MATRIX, NAV_ITEMS, ROLES, can } from '../lib/rbac'
+import { NAV_ITEMS, ROLES, can } from '../lib/rbac'
 
 const ACCESS_LABEL = { full: 'Full Access', view: 'View Only' }
 
@@ -19,9 +19,14 @@ const initials = (name) =>
 const emptyPasswordForm = { currentPassword: '', newPassword: '', confirmPassword: '' }
 
 export default function Profile() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [profile, setProfile] = useState(null)
   const [error, setError] = useState('')
+
+  const [editing, setEditing] = useState(false)
+  const [editForm, setEditForm] = useState({ name: '', email: '' })
+  const [editError, setEditError] = useState('')
+  const [editBusy, setEditBusy] = useState(false)
 
   const [passwordForm, setPasswordForm] = useState(emptyPasswordForm)
   const [passwordError, setPasswordError] = useState('')
@@ -34,6 +39,36 @@ export default function Profile() {
       .then(({ data }) => setProfile(data.user))
       .catch(() => setError('Could not load profile'))
   }, [])
+
+  const startEdit = () => {
+    setEditForm({ name: profile?.name ?? user.name, email: profile?.email ?? user.email })
+    setEditError('')
+    setEditing(true)
+  }
+
+  const cancelEdit = () => {
+    setEditing(false)
+    setEditError('')
+  }
+
+  const saveEdit = async () => {
+    setEditError('')
+    if (!editForm.name.trim() || !editForm.email.trim()) {
+      setEditError('Name and email are required')
+      return
+    }
+    setEditBusy(true)
+    try {
+      const { data } = await api.put('/auth/me', { name: editForm.name.trim(), email: editForm.email.trim() })
+      setProfile(data.user)
+      updateUser({ name: data.user.name, email: data.user.email })
+      setEditing(false)
+    } catch (err) {
+      setEditError(err.response?.data?.error || 'Could not save changes')
+    } finally {
+      setEditBusy(false)
+    }
+  }
 
   const changePassword = async () => {
     setPasswordError('')
@@ -71,42 +106,100 @@ export default function Profile() {
 
   if (!user) return null
 
+  const inputCls = 'w-full rounded border border-gray-300 px-3 py-1.5 text-sm focus:border-brand focus:outline-none'
+
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* account details */}
       <section className="rounded bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-sm font-bold uppercase text-gray-500">Account Details</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-bold uppercase text-gray-500">Account Details</h2>
+          {!editing && (
+            <button onClick={startEdit} className="text-xs font-semibold text-blue-600 hover:underline">
+              Edit
+            </button>
+          )}
+        </div>
 
         <div className="mb-5 flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-lg font-bold text-brand-dark">
-            {initials(user.name)}
+            {initials(profile?.name ?? user.name)}
           </div>
           <div>
-            <div className="text-base font-semibold text-gray-800">{user.name}</div>
+            <div className="text-base font-semibold text-gray-800">{profile?.name ?? user.name}</div>
             <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{ROLES[user.role]}</span>
           </div>
         </div>
 
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
-        <dl className="space-y-3 text-sm">
-          <div className="flex justify-between border-t border-gray-100 pt-3">
-            <dt className="text-gray-500">Name</dt>
-            <dd className="font-medium text-gray-800">{profile?.name ?? user.name}</dd>
+        {editing ? (
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Name</label>
+              <input
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Email</label>
+              <input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className={inputCls}
+              />
+            </div>
+            <div className="flex justify-between border-t border-gray-100 pt-3 text-sm">
+              <span className="text-gray-500">Role</span>
+              <span className="font-medium text-gray-800">{ROLES[user.role]}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Member Since</span>
+              <span className="font-medium text-gray-800">{profile?.createdAt ? fmtDate(profile.createdAt) : '—'}</span>
+            </div>
+
+            {editError && <p className="text-sm text-red-600">{editError}</p>}
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={saveEdit}
+                disabled={editBusy}
+                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95 disabled:opacity-60"
+              >
+                {editBusy ? 'Saving…' : 'Save changes'}
+              </button>
+              <button
+                onClick={cancelEdit}
+                disabled={editBusy}
+                className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-          <div className="flex justify-between border-t border-gray-100 pt-3">
-            <dt className="text-gray-500">Email</dt>
-            <dd className="font-medium text-gray-800">{profile?.email ?? user.email}</dd>
-          </div>
-          <div className="flex justify-between border-t border-gray-100 pt-3">
-            <dt className="text-gray-500">Role</dt>
-            <dd className="font-medium text-gray-800">{ROLES[user.role]}</dd>
-          </div>
-          <div className="flex justify-between border-t border-gray-100 pt-3">
-            <dt className="text-gray-500">Member Since</dt>
-            <dd className="font-medium text-gray-800">{profile?.createdAt ? fmtDate(profile.createdAt) : '—'}</dd>
-          </div>
-        </dl>
+        ) : (
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between border-t border-gray-100 pt-3">
+              <dt className="text-gray-500">Name</dt>
+              <dd className="font-medium text-gray-800">{profile?.name ?? user.name}</dd>
+            </div>
+            <div className="flex justify-between border-t border-gray-100 pt-3">
+              <dt className="text-gray-500">Email</dt>
+              <dd className="font-medium text-gray-800">{profile?.email ?? user.email}</dd>
+            </div>
+            <div className="flex justify-between border-t border-gray-100 pt-3">
+              <dt className="text-gray-500">Role</dt>
+              <dd className="font-medium text-gray-800">{ROLES[user.role]}</dd>
+            </div>
+            <div className="flex justify-between border-t border-gray-100 pt-3">
+              <dt className="text-gray-500">Member Since</dt>
+              <dd className="font-medium text-gray-800">{profile?.createdAt ? fmtDate(profile.createdAt) : '—'}</dd>
+            </div>
+          </dl>
+        )}
       </section>
 
       <div className="space-y-6">
