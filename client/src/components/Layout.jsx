@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { NAV_ITEMS, ROLES, can } from '../lib/rbac'
+import { NAV_ITEMS, ROLE_CODE, can } from '../lib/rbac'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -49,9 +49,11 @@ export default function Layout() {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/profile" className="flex items-center gap-3 hover:opacity-80">
+            <Link to="/profile" className="flex items-center gap-2 hover:opacity-80">
               <span className="hidden text-sm font-medium text-gray-700 sm:inline">{user.name}</span>
-              <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{ROLES[user.role]}</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                {ROLE_CODE[user.role]}
+              </span>
             </Link>
             <button
               onClick={() => {
