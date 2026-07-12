@@ -115,7 +115,7 @@ export default function Maintenance() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded bg-brand py-2 font-semibold text-brand-dark hover:brightness-95 disabled:opacity-60"
+              className="btn btn-primary btn-full"
             >
               Save
             </button>
@@ -164,7 +164,7 @@ export default function Maintenance() {
                       <button
                         onClick={() => close(log.slug)}
                         disabled={busy}
-                        className="rounded border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-60"
+                        className="btn btn-secondary btn-sm"
                       >
                         Close
                       </button>

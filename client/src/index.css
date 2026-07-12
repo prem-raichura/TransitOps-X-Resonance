@@ -5,3 +5,62 @@
 body {
   @apply bg-slate-100 text-slate-900 antialiased;
 }
+
+@layer components {
+  /* ── Base button ─────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-lg px-4 py-2 text-sm font-semibold
+           transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-offset-1
+           disabled:cursor-not-allowed disabled:opacity-50
+           select-none whitespace-nowrap;
+  }
+
+  /* ── Variants ────────────────────────────────────────────── */
+  .btn-primary {
+    @apply bg-brand text-brand-dark
+           hover:brightness-95 active:brightness-90
+           focus:ring-brand/50;
+  }
+
+  .btn-secondary {
+    @apply border border-gray-300 bg-white text-gray-700
+           hover:bg-gray-50 active:bg-gray-100
+           focus:ring-gray-300;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white
+           hover:bg-red-700 active:bg-red-800
+           focus:ring-red-500/50;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-gray-600
+           hover:bg-gray-100 hover:text-gray-900
+           active:bg-gray-200
+           focus:ring-gray-300;
+  }
+
+  /* text-only inline actions (e.g. Edit / Delete in tables) */
+  .btn-link {
+    @apply bg-transparent p-0 font-semibold underline-offset-2
+           hover:underline focus:ring-0;
+  }
+
+  .btn-link-primary  { @apply btn-link text-brand-dark; }
+  .btn-link-danger   { @apply btn-link text-red-600 hover:text-red-800; }
+  .btn-link-blue     { @apply btn-link text-blue-600 hover:text-blue-800; }
+
+  /* ── Size modifiers ──────────────────────────────────────── */
+  .btn-sm  { @apply px-3 py-1.5 text-xs rounded-md; }
+  .btn-lg  { @apply px-6 py-2.5 text-base; }
+  .btn-full { @apply w-full; }
+
+  /* ── Icon-only square button ─────────────────────────────── */
+  .btn-icon {
+    @apply btn p-2 rounded-md;
+  }
+}
+

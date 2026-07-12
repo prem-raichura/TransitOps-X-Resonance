@@ -110,7 +110,7 @@ export default function Drivers() {
         {editable && (
           <button
             onClick={() => setShowAdd(true)}
-            className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+            className="btn btn-primary"
           >
             + Add Driver
           </button>
@@ -188,7 +188,7 @@ export default function Drivers() {
                       {isDispatcher && (
                         <button
                           onClick={() => setCredsFor(d)}
-                          className="text-xs font-semibold text-blue-600 hover:underline"
+                          className="btn btn-link-blue btn-sm"
                         >
                           Set app password
                         </button>
@@ -250,11 +250,11 @@ export default function Drivers() {
                   setFieldErrors({})
                   setForm(emptyForm)
                 }}
-                className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
-              <button onClick={addDriver} className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95">
+              <button onClick={addDriver} className="btn btn-primary">
                 Save
               </button>
             </div>
@@ -286,13 +286,13 @@ export default function Drivers() {
                   setCredsError('')
                   setCredsPassword('')
                 }}
-                className="rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                className="btn btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={saveCredentials}
-                className="rounded bg-brand px-4 py-2 text-sm font-semibold text-brand-dark hover:brightness-95"
+                className="btn btn-primary"
               >
                 Save
               </button>

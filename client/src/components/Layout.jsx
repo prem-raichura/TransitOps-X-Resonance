@@ -39,7 +39,7 @@ export default function Layout() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
           <div className="flex items-center gap-3">
-            <button className="rounded border px-2 py-1 text-sm sm:hidden" onClick={() => setOpen((o) => !o)}>
+            <button className="btn btn-ghost btn-sm btn-icon sm:hidden" onClick={() => setOpen((o) => !o)} aria-label="Toggle menu">
               ☰
             </button>
             <input
@@ -60,7 +60,7 @@ export default function Layout() {
                 logout()
                 navigate('/login')
               }}
-              className="text-sm text-gray-500 hover:text-red-600"
+              className="btn btn-ghost btn-sm text-gray-500 hover:text-red-600"
             >
               Logout
             </button>
