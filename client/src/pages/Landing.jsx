@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { HOME_ROUTE } from '../lib/rbac'
 import ThemeToggle from '../components/ThemeToggle'
 
 const FEATURES = [
@@ -50,9 +48,10 @@ const STATS = [
 ]
 
 export default function Landing() {
-  const { user } = useAuth()
-  const ctaTo = user ? HOME_ROUTE[user.role] || '/dashboard' : '/login'
-  const ctaLabel = user ? 'Open dashboard' : 'Sign in'
+  // Always route the landing CTA to sign-in — clearer entry point than jumping
+  // straight to a dashboard off a (possibly stale) cached session.
+  const ctaTo = '/login'
+  const ctaLabel = 'Sign in'
 
   return (
     <div className="min-h-screen bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100">
@@ -106,7 +105,7 @@ export default function Landing() {
                 to={ctaTo}
                 className="rounded-lg bg-sunset px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sunset/30 transition-transform hover:-translate-y-0.5"
               >
-                {user ? 'Open dashboard →' : 'Get started →'}
+                Get started →
               </Link>
               <a
                 href="#features"
